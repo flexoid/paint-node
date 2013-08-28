@@ -3,16 +3,33 @@
   <head>
     <meta charset="utf-8">
     <title>Paint</title>
+    <link rel="stylesheet" href="css/html5-doctor-reset-stylesheet.min.css">
     <link rel="stylesheet" href="css/style.css">
   </head>
   <body>
-    <canvas id="canvas" width="500" height="500" style="border:1px solid #000000;">
-    </canvas>
+    <div class="users">
+      <h3>Users:</h3>
+      <ul class="userList">
+        <li></li>
+      </ul>
+    </div>
 
-    <input type="button" id="clear" value="Clear">
+    <div class="graphics">
+      <canvas id="canvas" width="500" height="500"></canvas>
 
-    <ul id="userList">
-    </ul>
+      <div class="palette">
+        <div class="color selected" data-color="Blue"></div>
+        <div class="color" data-color="Red"></div>
+        <div class="color" data-color="BlueViolet"></div>
+        <div class="color" data-color="Green"></div>
+        <div class="color" data-color="DarkMagenta"></div>
+        <div class="color" data-color="Magenta"></div>
+        <div class="color" data-color="Lime"></div>
+        <div class="color" data-color="OrangeRed"></div>
+      </div>
+
+      <input type="button" id="clear" value="Clear">
+    </div>
 
     <script src="js/zepto.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>

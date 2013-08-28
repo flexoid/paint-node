@@ -13,51 +13,44 @@ $(function() {
   var buttonPressed = false;
   var color;
 
-  var socket = io.connect('http://localhost:4444');
+  var socket = io.connect('/');
 
   socket.on('draw', function (data) {
     draw(data.from.x, data.from.y, data.to.x, data.to.y, data.color);
   });
 
-  socket.on('color', function (data) {
-    color = data;
-    console.log(data);
-  });
+  color = 'Blue';
 
-  socket.on('users', function (users) {
-    for (var id in users) {
-      addUserListItem(id, users[id], id == socket.socket.sessionid);
-    }
-  });
-
-  socket.on('userConnect', function (data) {
-    addUserListItem(data.id, data.color, false);
+  socket.on('userConnect', function(user) {
+    addUserListItem(user, false);
   });
 
   socket.on('userDisconnect', function (id) {
-    $('#userList #' + id).remove();
+    $('.userList #id-' + id).remove();
   });
 
-  socket.on('drawFromHistory', function (history) {
+  socket.on('init', function(data) {
+    drawColorFromHistory(data.history);
+    fillUsersList(data.users);
+  });
+
+  socket.on('clear', function() {
     clearCanvas();
-    for (var color in history) {
-      if (Array.isArray(history[color]) && history[color].length > 1) {
-        drawColorFromHistory(color, history[color]);
-      }
+  });
+
+  function fillUsersList(users) {
+    for (var id in users) {
+      addUserListItem(users[id], id == socket.socket.sessionid);
     }
-  });
+  }
 
-  socket.on('clean', function() {
-    clearCanvas();
-  });
-
-  function addUserListItem(id, color, me) {
-    newItem = $('<li>•</li>');
-    newItem.attr('id', id);
+  function addUserListItem(user, me) {
+    newItem = $('<li>' + user.id + '</li>');
+    newItem.attr('id', "id-" + user.id);
     if (me)
       newItem.attr('class', 'me');
-    newItem.css('color', color);
-    $('#userList').append(newItem);
+    // newItem.css('color', color);
+    $('.userList').append(newItem);
   }
 
   var prevX, prevY;
@@ -82,25 +75,23 @@ $(function() {
     context.closePath();
   }
 
-  function drawColorFromHistory(color, colorHistory) {
-    context.beginPath();
+  function drawColorFromHistory(history) {
+    clearCanvas();
 
-    // for (var i = 1; i < colorHistory.length; i++) {
-    //   var from = colorHistory[i - 1];
-    //   var to = colorHistory[i];
+    for (var color in history) {
+      if (Array.isArray(history[color]) && history[color].length > 1) {
+        context.beginPath();
 
-    //   context.moveTo(from.x, from.y);
-    //   context.lineTo(to.x, to.y);
-    // }
+        history[color].forEach(function(points) {
+          context.moveTo(points.from.x, points.from.y);
+          context.lineTo(points.to.x, points.to.y);
+        });
 
-    colorHistory.forEach(function(points) {
-      context.moveTo(points.from.x, points.from.y);
-      context.lineTo(points.to.x, points.to.y);
-    });
-
-    context.strokeStyle = color;
-    context.stroke();
-    context.closePath();
+        context.strokeStyle = color;
+        context.stroke();
+        context.closePath();
+      }
+    }
   }
 
   function clearCanvas() {
@@ -127,7 +118,7 @@ $(function() {
       if (prevX && prevY && color) {
         draw(prevX, prevY, coords.x, coords.y, color);
 
-        socket.emit('draw', {from: {x: prevX, y: prevY}, to: {x: coords.x, y: coords.y}});
+        socket.emit('draw', {from: {x: prevX, y: prevY}, to: {x: coords.x, y: coords.y}, color: color});
       }
 
       prevX = coords.x;
@@ -138,5 +129,16 @@ $(function() {
   $("#clear").on("click", function() {
     socket.emit('clear');
     clearCanvas();
+  });
+
+  $(".palette .color").each(function() {
+    var colorIcon = $(this);
+    colorIcon.css('background-color', colorIcon.data('color'));
+
+    colorIcon.on('click', function() {
+      color = colorIcon.data('color');
+      $(".palette .color").removeClass('selected');
+      colorIcon.addClass('selected');
+    });
   });
 });

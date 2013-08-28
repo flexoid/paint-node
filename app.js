@@ -41,53 +41,38 @@ var app = http.createServer(function(request, response) {
 
 var io = socketio.listen(app);
 
-var colorsList = ['Blue', 'Red', 'BlueViolet', 'Green', 'DarkMagenta', 'Magenta'];
+var colorsList = ['Blue', 'Red', 'BlueViolet', 'Green', 'DarkMagenta', 'Magenta', 'Lime', 'OrangeRed'];
 var users = {};
 var drawHistory = {};
 
-function AddToDrawHistory(data) {
+function addToDrawHistory(data) {
   if (!drawHistory[data.color]) {
     drawHistory[data.color] = [];
-    // drawHistory[data.color].push(data.from);
   }
-  // drawHistory[data.color].push(data.to);
-  drawHistory[data.color].push(data);
+  drawHistory[data.color].push({from: data.from, to: data.to});
+}
+
+function initializeClient(socket) {
+  users[socket.id] = {id: socket.id, name: ''};
+  socket.emit('init', {history: drawHistory, users: users});
+  socket.broadcast.emit('userConnect', {id: socket.id, name: ''});
 }
 
 io.sockets.on('connection', function(socket) {
-  var color = colorsList.shift();
 
-  socket.emit('drawFromHistory', drawHistory);
-
-  socket.set('color', color, function() {
-    users[socket.id] = color;
-
-    socket.emit('color', color);
-    socket.emit('users', users);
-    socket.broadcast.emit('userConnect', {id: socket.id, color: color});
-  });
+  initializeClient(socket);
 
   socket.on('draw', function(data) {
-    socket.get('color', function(err, color) {
-      if (color) {
-        data.color = color;
-        socket.broadcast.emit('draw', data);
-        AddToDrawHistory(data);
-      }
-    });
+    socket.broadcast.emit('draw', data);
+    addToDrawHistory(data);
   });
 
   socket.on('disconnect', function() {
-    socket.get('color', function(err, color) {
-      if (color) {
-        delete users[socket.id];
-        colorsList.unshift(color);
-      }
-    });
+    delete users[socket.id];
     socket.broadcast.emit('userDisconnect', socket.id);
   });
 
   socket.on('clear', function() {
-    socket.broadcast.emit('clean');
+    socket.broadcast.emit('clear');
   });
 });

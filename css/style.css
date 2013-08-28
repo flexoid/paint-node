@@ -1,13 +1,35 @@
-#userList {
+.users {
+  margin: 10px 0 0 10px;
+}
+
+.userList {
+  float: left;
   list-style-type: none;
+  width: 250px;
 }
 
-#userList li {
-  font-size: 50px;
-  display: inline;
+.userList .me{
+  font-weight: bold;
 }
 
+.palette {
+  font-size: 0;
+}
 
-#userList li.me {
-  font-size: 70px;
+.palette .color {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+}
+
+.palette .color.selected {
+  border: 1px dashed black;
+}
+
+#canvas {
+  border: 1px solid #000000;
+}
+
+.graphics {
+  margin-left: 260px;
 }
