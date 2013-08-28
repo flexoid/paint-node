@@ -37,6 +37,14 @@ $(function() {
     $('#userList #' + id).remove();
   });
 
+  socket.on('drawFromHistory', function (history) {
+    for (var color in history) {
+      if (Array.isArray(history[color]) && history[color].length > 1) {
+        drawColorFromHistory(color, history[color]);
+      }
+    }
+  });
+
   function addUserListItem(id, color, me) {
     newItem = $('<li>•</li>');
     newItem.attr('id', id);
@@ -63,6 +71,26 @@ $(function() {
     context.beginPath();
     context.moveTo(prevX, prevY);
     context.lineTo(x, y);
+    context.strokeStyle = color;
+    context.stroke();
+  }
+
+  function drawColorFromHistory(color, colorHistory) {
+    context.beginPath();
+
+    // for (var i = 1; i < colorHistory.length; i++) {
+    //   var from = colorHistory[i - 1];
+    //   var to = colorHistory[i];
+
+    //   context.moveTo(from.x, from.y);
+    //   context.lineTo(to.x, to.y);
+    // }
+
+    colorHistory.forEach(function(points) {
+      context.moveTo(points.from.x, points.from.y);
+      context.lineTo(points.to.x, points.to.y);
+    });
+
     context.strokeStyle = color;
     context.stroke();
   }

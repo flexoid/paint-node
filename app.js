@@ -43,9 +43,21 @@ var io = socketio.listen(app);
 
 var colorsList = ['Blue', 'Red', 'BlueViolet', 'Green', 'DarkMagenta', 'Magenta'];
 var users = {};
+var drawHistory = {};
+
+function AddToDrawHistory(data) {
+  if (!drawHistory[data.color]) {
+    drawHistory[data.color] = [];
+    // drawHistory[data.color].push(data.from);
+  }
+  // drawHistory[data.color].push(data.to);
+  drawHistory[data.color].push(data);
+}
 
 io.sockets.on('connection', function (socket) {
   var color = colorsList.shift();
+
+  socket.emit('drawFromHistory', drawHistory);
 
   socket.set('color', color, function() {
     users[socket.id] = color;
@@ -60,6 +72,7 @@ io.sockets.on('connection', function (socket) {
       if (color) {
         data.color = color;
         socket.broadcast.emit('draw', data);
+        AddToDrawHistory(data);
       }
     });
   });
