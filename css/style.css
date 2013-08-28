@@ -1,0 +1,13 @@
+#userList {
+  list-style-type: none;
+}
+
+#userList li {
+  font-size: 50px;
+  display: inline;
+}
+
+
+#userList li.me {
+  font-size: 70px;
+}
