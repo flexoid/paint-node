@@ -26,7 +26,7 @@ $(function() {
   });
 
   socket.on('userDisconnect', function (id) {
-    $('.userList #id-' + id).remove();
+    removeUserFromList(id);
   });
 
   socket.on('init', function(data) {
@@ -49,8 +49,18 @@ $(function() {
     newItem.attr('id', "id-" + user.id);
     if (me)
       newItem.attr('class', 'me');
-    // newItem.css('color', color);
     $('.userList').append(newItem);
+
+    updateUsersCount();
+  }
+
+  function removeUserFromList(id) {
+    $('.userList #id-' + id).remove();
+    updateUsersCount();
+  }
+
+  function updateUsersCount() {
+    $('#userCount').text($('.userList li').length);
   }
 
   var prevX, prevY;
