@@ -108,7 +108,7 @@ $(function() {
   });
 
   $("#canvas").on("mouseout", function(e) {
-    buttonPressed = false;
+    prevX = prevY = undefined;
   });
 
   $("#canvas").on("mousemove", function(e) {
