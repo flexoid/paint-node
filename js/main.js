@@ -8,7 +8,8 @@ function windowToCanvas(canvas, x, y) {
 }
 
 $(function() {
-  var context = $("#canvas")[0].getContext('2d');
+  var canvas = $("#canvas")[0];
+  var context = canvas.getContext('2d');
   var buttonPressed = false;
   var color;
 
@@ -38,11 +39,16 @@ $(function() {
   });
 
   socket.on('drawFromHistory', function (history) {
+    clearCanvas();
     for (var color in history) {
       if (Array.isArray(history[color]) && history[color].length > 1) {
         drawColorFromHistory(color, history[color]);
       }
     }
+  });
+
+  socket.on('clean', function() {
+    clearCanvas();
   });
 
   function addUserListItem(id, color, me) {
@@ -73,6 +79,7 @@ $(function() {
     context.lineTo(x, y);
     context.strokeStyle = color;
     context.stroke();
+    context.closePath();
   }
 
   function drawColorFromHistory(color, colorHistory) {
@@ -93,6 +100,11 @@ $(function() {
 
     context.strokeStyle = color;
     context.stroke();
+    context.closePath();
+  }
+
+  function clearCanvas() {
+    context.clearRect(0, 0, canvas.width, canvas.height);
   }
 
   $("#canvas").on("mousedown", function(e) {
@@ -121,5 +133,10 @@ $(function() {
       prevX = coords.x;
       prevY = coords.y;
     }
+  });
+
+  $("#clear").on("click", function() {
+    socket.emit('clear');
+    clearCanvas();
   });
 });

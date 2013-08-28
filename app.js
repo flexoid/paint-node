@@ -54,7 +54,7 @@ function AddToDrawHistory(data) {
   drawHistory[data.color].push(data);
 }
 
-io.sockets.on('connection', function (socket) {
+io.sockets.on('connection', function(socket) {
   var color = colorsList.shift();
 
   socket.emit('drawFromHistory', drawHistory);
@@ -67,7 +67,7 @@ io.sockets.on('connection', function (socket) {
     socket.broadcast.emit('userConnect', {id: socket.id, color: color});
   });
 
-  socket.on('draw', function (data) {
+  socket.on('draw', function(data) {
     socket.get('color', function(err, color) {
       if (color) {
         data.color = color;
@@ -77,7 +77,7 @@ io.sockets.on('connection', function (socket) {
     });
   });
 
-  socket.on('disconnect', function () {
+  socket.on('disconnect', function() {
     socket.get('color', function(err, color) {
       if (color) {
         delete users[socket.id];
@@ -85,5 +85,9 @@ io.sockets.on('connection', function (socket) {
       }
     });
     socket.broadcast.emit('userDisconnect', socket.id);
+  });
+
+  socket.on('clear', function() {
+    socket.broadcast.emit('clean');
   });
 });
