@@ -58,13 +58,22 @@ function initializeClient(socket) {
   socket.broadcast.emit('userConnect', {id: socket.id, name: ''});
 }
 
+function validateDrawData(data) {
+  if (colorsList.indexOf(data.color) == -1) {
+    return false;
+  }
+  return true;
+}
+
 io.sockets.on('connection', function(socket) {
 
   initializeClient(socket);
 
   socket.on('draw', function(data) {
-    socket.broadcast.emit('draw', data);
-    addToDrawHistory(data);
+    if (validateDrawData(data)) {
+      socket.broadcast.emit('draw', data);
+      addToDrawHistory(data);
+    }
   });
 
   socket.on('disconnect', function() {
